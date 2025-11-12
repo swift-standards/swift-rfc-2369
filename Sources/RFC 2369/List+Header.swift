@@ -126,12 +126,12 @@ extension RFC_2369.List {
             owner: [any RFC_3987.IRI.Representable]? = nil,
             archive: (any RFC_3987.IRI.Representable)? = nil
         ) {
-            self.help = help?.iri
-            self.unsubscribe = unsubscribe?.map(\.iri)
-            self.subscribe = subscribe?.map(\.iri)
+            self.help = help.map { RFC_3987.IRI(unchecked: $0.iriString) }
+            self.unsubscribe = unsubscribe?.map { RFC_3987.IRI(unchecked: $0.iriString) }
+            self.subscribe = subscribe?.map { RFC_3987.IRI(unchecked: $0.iriString) }
             self.post = post
-            self.owner = owner?.map(\.iri)
-            self.archive = archive?.iri
+            self.owner = owner?.map { RFC_3987.IRI(unchecked: $0.iriString) }
+            self.archive = archive.map { RFC_3987.IRI(unchecked: $0.iriString) }
         }
 
     }

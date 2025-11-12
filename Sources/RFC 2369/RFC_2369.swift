@@ -42,7 +42,7 @@ import Foundation
 ///
 /// This module re-exports RFC 3987 (IRI) types for convenience, as IRIs are
 /// fundamental to list header values.
-public enum RFC_2369 {
+public enum RFC_2369 {  // swiftlint:disable:this type_name
     /// Errors that can occur when working with list headers
     public enum ListError: Error, Hashable, Sendable {
         case invalidHeaderValue(String)

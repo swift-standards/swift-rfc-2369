@@ -1,5 +1,6 @@
-# swift-rfc-2369
+# Swift RFC 2369
 
+[![CI](https://github.com/swift-standards/swift-rfc-2369/workflows/CI/badge.svg)](https://github.com/swift-standards/swift-rfc-2369/actions/workflows/ci.yml)
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
 
 Swift implementation of RFC 2369: The Use of URLs as Meta-Syntax for Core Mail List Commands
@@ -22,12 +23,23 @@ This package provides a Swift implementation of list management headers as defin
 
 ## Installation
 
-### Swift Package Manager
+Add swift-rfc-2369 to your package dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-standards/swift-rfc-2369", branch: "main")
+    .package(url: "https://github.com/swift-standards/swift-rfc-2369.git", from: "0.1.0")
 ]
+```
+
+Then add it to your target:
+
+```swift
+.target(
+    name: "YourTarget",
+    dependencies: [
+        .product(name: "RFC 2369", package: "swift-rfc-2369")
+    ]
+)
 ```
 
 ## Usage
@@ -182,11 +194,10 @@ public enum Post {
 - [swift-rfc-3987](https://github.com/swift-standards/swift-rfc-3987) - IRI implementation
 - [swift-rfc-8058](https://github.com/swift-standards/swift-rfc-8058) - One-click unsubscribe (companion to RFC 2369)
 
-## License & Contributing
+## License
 
-Licensed under Apache 2.0.
+This library is released under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 
-Contributions welcome! Please ensure:
-- All tests pass
-- Code follows existing style
-- RFC 2369 compliance maintained
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
