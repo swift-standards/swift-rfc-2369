@@ -1,0 +1,42 @@
+// swift-tools-version: 6.0
+
+import PackageDescription
+
+let package = Package(
+    name: "swift-rfc-2369",
+    platforms: [
+        .macOS(.v14),
+        .iOS(.v17),
+        .tvOS(.v17),
+        .watchOS(.v10)
+    ],
+    products: [
+        .library(
+            name: "RFC 2369",
+            targets: ["RFC 2369"]
+        )
+    ],
+    dependencies: [
+        .package(path: "../swift-rfc-3987")
+    ],
+    targets: [
+        .target(
+            name: "RFC 2369",
+            dependencies: [
+                .product(name: "RFC 3987", package: "swift-rfc-3987")
+            ]
+        ),
+        .testTarget(
+            name: "RFC 2369 Tests",
+            dependencies: ["RFC 2369"]
+        )
+    ]
+)
+
+for target in package.targets {
+    target.swiftSettings?.append(
+        contentsOf: [
+            .enableUpcomingFeature("MemberImportVisibility")
+        ]
+    )
+}
