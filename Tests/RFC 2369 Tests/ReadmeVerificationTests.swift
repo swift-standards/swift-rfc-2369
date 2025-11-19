@@ -3,11 +3,11 @@ import Testing
 
 @testable import RFC_2369
 
-@Suite("README Verification")
-struct ReadmeVerificationTests {
+@Suite
+struct `README Verification` {
 
-    @Test("Example from README: Creating List Headers")
-    func exampleCreatingListHeaders() throws {
+    @Test
+    func `Example from README: Creating List Headers`() throws {
         // From README line 41-52
         let headers = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help"),
@@ -25,8 +25,8 @@ struct ReadmeVerificationTests {
         #expect(headers.unsubscribe?.count == 2)
     }
 
-    @Test("Example from README: Using Foundation URLs")
-    func exampleFoundationURLs() {
+    @Test
+    func `Example from README: Using Foundation URLs`() {
         // From README line 58-63
         let headers = RFC_2369.List.Header(
             help: URL(string: "https://example.com/help")!,
@@ -36,8 +36,8 @@ struct ReadmeVerificationTests {
         #expect(headers.help?.value == "https://example.com/help")
     }
 
-    @Test("Example from README: Rendering as Email Headers")
-    func exampleRenderingHeaders() throws {
+    @Test
+    func `Example from README: Rendering as Email Headers`() throws {
         let headers = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help")
         )
@@ -48,8 +48,8 @@ struct ReadmeVerificationTests {
         #expect(emailHeaders["List-Help"] == "<https://example.com/help>")
     }
 
-    @Test("Example from README: Announcement-Only Lists")
-    func exampleAnnouncementList() throws {
+    @Test
+    func `Example from README: Announcement-Only Lists`() throws {
         // From README line 82-87
         let headers = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help"),

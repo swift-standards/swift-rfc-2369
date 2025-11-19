@@ -3,13 +3,13 @@ import Testing
 
 @testable import RFC_2369
 
-@Suite("RFC 2369 List Header Tests")
-struct ListHeaderTests {
+@Suite
+struct `RFC 2369 List Header Tests` {
 
     // MARK: - Basic Initialization
 
-    @Test("List headers can be created with all fields")
-    func testCompleteHeaders() throws {
+    @Test
+    func `List headers can be created with all fields`() throws {
         let headers = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help"),
             unsubscribe: [
@@ -31,8 +31,8 @@ struct ListHeaderTests {
         #expect(headers.archive != nil)
     }
 
-    @Test("List headers can be created with minimal fields")
-    func testMinimalHeaders() {
+    @Test
+    func `List headers can be created with minimal fields`() {
         let headers = RFC_2369.List.Header()
 
         #expect(headers.help == nil)
@@ -43,8 +43,8 @@ struct ListHeaderTests {
         #expect(headers.archive == nil)
     }
 
-    @Test("List headers can be created with IRI.Representable (URL)")
-    func testURLConvenience() throws {
+    @Test
+    func `List headers can be created with IRI.Representable (URL)`() throws {
         let helpURL = URL(string: "https://example.com/help")!
         let unsubscribeURL = URL(string: "https://example.com/unsubscribe")!
 
@@ -59,8 +59,8 @@ struct ListHeaderTests {
 
     // MARK: - Email Header Rendering
 
-    @Test("Renders single URI headers correctly per RFC 2369")
-    func testSingleURIRendering() throws {
+    @Test
+    func `Renders single URI headers correctly per RFC 2369`() throws {
         let headers = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help"),
             archive: try RFC_3987.IRI("https://example.com/archive")
@@ -72,8 +72,8 @@ struct ListHeaderTests {
         #expect(emailHeaders["List-Archive"] == "<https://example.com/archive>")
     }
 
-    @Test("Renders multiple URI headers with comma separation per RFC 2369")
-    func testMultipleURIRendering() throws {
+    @Test
+    func `Renders multiple URI headers with comma separation per RFC 2369`() throws {
         let headers = try RFC_2369.List.Header(
             unsubscribe: [
                 try RFC_3987.IRI("https://example.com/unsubscribe"),
@@ -98,8 +98,8 @@ struct ListHeaderTests {
         )
     }
 
-    @Test("Renders List-Post with URIs correctly")
-    func testPostURIRendering() throws {
+    @Test
+    func `Renders List-Post with URIs correctly`() throws {
         let headers = RFC_2369.List.Header(
             post: .uris([
                 try RFC_3987.IRI("mailto:list@example.com")
@@ -111,8 +111,8 @@ struct ListHeaderTests {
         #expect(emailHeaders["List-Post"] == "<mailto:list@example.com>")
     }
 
-    @Test("Renders List-Post NO for announcement lists per RFC 2369")
-    func testPostNoPostingRendering() {
+    @Test
+    func `Renders List-Post NO for announcement lists per RFC 2369`() {
         let headers = RFC_2369.List.Header(
             post: .noPosting
         )
@@ -123,8 +123,8 @@ struct ListHeaderTests {
         #expect(emailHeaders["List-Post"] == "NO")
     }
 
-    @Test("Does not include headers with nil values")
-    func testNilHeadersExcluded() throws {
+    @Test
+    func `Does not include headers with nil values`() throws {
         let headers = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help")
         )
@@ -142,8 +142,8 @@ struct ListHeaderTests {
 
     // MARK: - RFC 2369 Examples
 
-    @Test("Example from RFC 2369 Section 4.1")
-    func testRFC2369Example1() throws {
+    @Test
+    func `Example from RFC 2369 Section 4.1`() throws {
         // RFC 2369 Example:
         // List-Help: <mailto:list@host.com?subject=help> (List Instructions)
         // List-Unsubscribe: <mailto:list@host.com?subject=unsubscribe>
@@ -168,8 +168,8 @@ struct ListHeaderTests {
         #expect(emailHeaders["List-Owner"] == "<mailto:listmom@host.com>")
     }
 
-    @Test("Example from RFC 2369 Section 4.2 - Web-based list")
-    func testRFC2369Example2() throws {
+    @Test
+    func `Example from RFC 2369 Section 4.2 - Web-based list`() throws {
         // RFC 2369 Example: Web-based mailing list
         // List-Help: <http://www.host.com/list/> <mailto:list-help@host.com>
         // List-Unsubscribe: <http://www.host.com/list.cgi?cmd=unsub&lst=list>, <mailto:list-request@host.com?subject=unsubscribe>
@@ -199,8 +199,8 @@ struct ListHeaderTests {
         )
     }
 
-    @Test("Example from RFC 2369 Section 4.3 - Announcement-only list")
-    func testRFC2369Example3() throws {
+    @Test
+    func `Example from RFC 2369 Section 4.3 - Announcement-only list`() throws {
         // RFC 2369 Example: Announcement-only list
         // List-Help: <mailto:list-info@host.com>
         // List-Post: NO (posting not allowed on this list)
@@ -218,8 +218,8 @@ struct ListHeaderTests {
 
     // MARK: - List.Post Tests
 
-    @Test("List.Post.uris renders correctly")
-    func testPostURIs() throws {
+    @Test
+    func `List.Post.uris renders correctly`() throws {
         let post = RFC_2369.List.Post.uris([
             try RFC_3987.IRI("mailto:list@example.com"),
             try RFC_3987.IRI("mailto:moderator@example.com"),
@@ -230,8 +230,8 @@ struct ListHeaderTests {
         #expect(headerValue == "<mailto:list@example.com>, <mailto:moderator@example.com>")
     }
 
-    @Test("List.Post.noPosting renders as NO")
-    func testPostNoPosting() {
+    @Test
+    func `List.Post.noPosting renders as NO`() {
         let post = RFC_2369.List.Post.noPosting
 
         let headerValue = String(listPost: post)
@@ -241,8 +241,8 @@ struct ListHeaderTests {
 
     // MARK: - Codable Tests
 
-    @Test("List.Header is Codable")
-    func testHeaderCodable() throws {
+    @Test
+    func `List.Header is Codable`() throws {
         let original = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help"),
             unsubscribe: [try RFC_3987.IRI("https://example.com/unsubscribe")],
@@ -257,8 +257,8 @@ struct ListHeaderTests {
         #expect(decoded.post == original.post)
     }
 
-    @Test("List.Post is Codable")
-    func testPostCodable() throws {
+    @Test
+    func `List.Post is Codable`() throws {
         let urisPost = RFC_2369.List.Post.uris([try RFC_3987.IRI("mailto:list@example.com")])
         let encodedURIs = try JSONEncoder().encode(urisPost)
         let decodedURIs = try JSONDecoder().decode(RFC_2369.List.Post.self, from: encodedURIs)
@@ -272,8 +272,8 @@ struct ListHeaderTests {
 
     // MARK: - Hashable Tests
 
-    @Test("List.Header is Hashable")
-    func testHeaderHashable() throws {
+    @Test
+    func `List.Header is Hashable`() throws {
         let header1 = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help")
         )
@@ -297,8 +297,8 @@ struct ListHeaderTests {
 
     // MARK: - Sendable Tests
 
-    @Test("List.Header is Sendable")
-    func testHeaderSendable() async throws {
+    @Test
+    func `List.Header is Sendable`() async throws {
         let headers = try RFC_2369.List.Header(
             help: try RFC_3987.IRI("https://example.com/help")
         )
