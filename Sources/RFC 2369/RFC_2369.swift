@@ -1,4 +1,3 @@
-import Foundation
 @_exported import RFC_3987
 
 /// RFC 2369: The Use of URLs as Meta-Syntax for Core Mail List Commands
