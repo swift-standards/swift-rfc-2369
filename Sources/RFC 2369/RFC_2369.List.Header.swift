@@ -11,6 +11,8 @@
 //
 // ===----------------------------------------------------------------------===//
 
+public import INCITS_4_1986
+
 extension RFC_2369.List {
     /// Complete set of list management headers as defined in RFC 2369
     ///
@@ -123,6 +125,133 @@ extension RFC_2369.List {
     }
 }
 
+// MARK: - UInt8.Serializable Conformance
+
+extension RFC_2369.List.Header: UInt8.Serializable {
+    public static let serialize: @Sendable (Self) -> [UInt8] = [UInt8].init
+}
+
+// MARK: - [UInt8] Conversion
+
+extension [UInt8] {
+    /// Creates ASCII bytes from RFC 2369 List.Header
+    ///
+    /// Serializes the list headers as RFC 5322 header lines per RFC 2369 Section 2:
+    ///
+    /// > The contents of the list header fields mostly consist of angle-bracket
+    /// > ('<', '>') enclosed URLs, with internal whitespace being ignored.
+    /// > Multiple URLs in a single header field MUST be separated by commas.
+    ///
+    /// ## Category Theory
+    ///
+    /// Canonical serialization (natural transformation):
+    /// - **Domain**: RFC_2369.List.Header (structured data)
+    /// - **Codomain**: [UInt8] (ASCII bytes)
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let header = RFC_2369.List.Header(
+    ///     help: try RFC_3987.IRI("https://example.com/help")
+    /// )
+    /// let bytes = [UInt8](header)
+    /// // bytes == "List-Help: <https://example.com/help>\r\n" as ASCII
+    /// ```
+    ///
+    /// - Parameter header: The list header to serialize
+    public init(_ header: RFC_2369.List.Header) {
+        self = []
+
+        // List-Help
+        if let help = header.help {
+            append(contentsOf: "List-Help".utf8)
+            append(.ascii.colon)
+            append(.ascii.space)
+            append(.ascii.lessThanSign)
+            append(contentsOf: help.value.utf8)
+            append(.ascii.greaterThanSign)
+            append(.ascii.cr)
+            append(.ascii.lf)
+        }
+
+        // List-Unsubscribe
+        if let unsubscribe = header.unsubscribe, !unsubscribe.isEmpty {
+            append(contentsOf: "List-Unsubscribe".utf8)
+            append(.ascii.colon)
+            append(.ascii.space)
+            for (index, iri) in unsubscribe.enumerated() {
+                if index > 0 {
+                    append(.ascii.comma)
+                    append(.ascii.space)
+                }
+                append(.ascii.lessThanSign)
+                append(contentsOf: iri.value.utf8)
+                append(.ascii.greaterThanSign)
+            }
+            append(.ascii.cr)
+            append(.ascii.lf)
+        }
+
+        // List-Subscribe
+        if let subscribe = header.subscribe, !subscribe.isEmpty {
+            append(contentsOf: "List-Subscribe".utf8)
+            append(.ascii.colon)
+            append(.ascii.space)
+            for (index, iri) in subscribe.enumerated() {
+                if index > 0 {
+                    append(.ascii.comma)
+                    append(.ascii.space)
+                }
+                append(.ascii.lessThanSign)
+                append(contentsOf: iri.value.utf8)
+                append(.ascii.greaterThanSign)
+            }
+            append(.ascii.cr)
+            append(.ascii.lf)
+        }
+
+        // List-Post
+        if let post = header.post {
+            append(contentsOf: "List-Post".utf8)
+            append(.ascii.colon)
+            append(.ascii.space)
+            post.serialize(into: &self)
+            append(.ascii.cr)
+            append(.ascii.lf)
+        }
+
+        // List-Owner
+        if let owner = header.owner, !owner.isEmpty {
+            append(contentsOf: "List-Owner".utf8)
+            append(.ascii.colon)
+            append(.ascii.space)
+            for (index, iri) in owner.enumerated() {
+                if index > 0 {
+                    append(.ascii.comma)
+                    append(.ascii.space)
+                }
+                append(.ascii.lessThanSign)
+                append(contentsOf: iri.value.utf8)
+                append(.ascii.greaterThanSign)
+            }
+            append(.ascii.cr)
+            append(.ascii.lf)
+        }
+
+        // List-Archive
+        if let archive = header.archive {
+            append(contentsOf: "List-Archive".utf8)
+            append(.ascii.colon)
+            append(.ascii.space)
+            append(.ascii.lessThanSign)
+            append(contentsOf: archive.value.utf8)
+            append(.ascii.greaterThanSign)
+            append(.ascii.cr)
+            append(.ascii.lf)
+        }
+    }
+}
+
 // MARK: - CustomStringConvertible
 
 extension RFC_2369.List.Header: CustomStringConvertible {
@@ -130,7 +259,18 @@ extension RFC_2369.List.Header: CustomStringConvertible {
     ///
     /// Renders all headers as RFC 5322 header lines.
     public var description: String {
-        String(decoding: [UInt8](self), as: UTF8.self)
+        String(decoding: self.bytes, as: UTF8.self)
+    }
+}
+
+// MARK: - StringProtocol Conversion
+
+extension StringProtocol {
+    /// Create a string from an RFC 2369 List.Header
+    ///
+    /// - Parameter header: The header to convert
+    public init(_ header: RFC_2369.List.Header) {
+        self = Self(decoding: header.bytes, as: UTF8.self)
     }
 }
 
