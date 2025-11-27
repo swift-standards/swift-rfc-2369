@@ -1,4 +1,15 @@
-@_exported import RFC_3987
+// ===----------------------------------------------------------------------===//
+//
+// This source file is part of the swift-rfc-2369 open source project
+//
+// Copyright (c) 2025 Coen ten Thije Boonkkamp
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// ===----------------------------------------------------------------------===//
 
 /// RFC 2369: The Use of URLs as Meta-Syntax for Core Mail List Commands
 ///
@@ -24,7 +35,10 @@
 ///     help: try RFC_3987.IRI("https://example.com/help")
 /// )
 ///
-/// // Render to email headers
+/// // Serialize to bytes
+/// let bytes = [UInt8](headers)
+///
+/// // Or render to email headers dictionary
 /// let emailHeaders = [String: String](listHeader: headers)
 /// // ["List-Subscribe": "<https://example.com/subscribe>", ...]
 /// ```
@@ -39,28 +53,5 @@
 /// > The contents of the list header fields mostly consist of angle-bracket
 /// > ('<', '>') enclosed URLs, with internal whitespace being ignored.
 ///
-/// This module re-exports RFC 3987 (IRI) types for convenience, as IRIs are
-/// fundamental to list header values.
-public enum RFC_2369 {
-    /// Errors that can occur when working with list headers
-    public enum ListError: Error, Hashable, Sendable {
-        case invalidHeaderValue(String)
-        case missingRequiredHeader(String)
-        case invalidPostValue(String)
-    }
-}
-
-// MARK: - LocalizedError Conformance
-
-extension RFC_2369.ListError: LocalizedError {
-    public var errorDescription: String? {
-        switch self {
-        case .invalidHeaderValue(let value):
-            return "Invalid list header value: '\(value)'. Values must be valid IRIs per RFC 2369."
-        case .missingRequiredHeader(let header):
-            return "Missing required list header: '\(header)'"
-        case .invalidPostValue(let value):
-            return "Invalid List-Post value: '\(value)'. Must be 'NO' or one or more IRIs."
-        }
-    }
-}
+/// This module re-exports RFC 3987 (IRI) and INCITS 4-1986 (ASCII) types for convenience.
+public enum RFC_2369 {}

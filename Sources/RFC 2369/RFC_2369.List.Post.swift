@@ -1,4 +1,15 @@
-import RFC_3987
+// ===----------------------------------------------------------------------===//
+//
+// This source file is part of the swift-rfc-2369 open source project
+//
+// Copyright (c) 2025 Coen ten Thije Boonkkamp
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// ===----------------------------------------------------------------------===//
 
 extension RFC_2369.List {
     /// Value for the List-Post header as defined in RFC 2369 Section 3.4
@@ -32,9 +43,12 @@ extension RFC_2369.List {
     /// // Announcement-only list
     /// let announcementPost = RFC_2369.List.Post.noPosting
     ///
-    /// // Render to header value
-    /// print(String(listPost: post))  // "<mailto:list@example.com>"
-    /// print(String(listPost: announcementPost))  // "NO"
+    /// // Serialize to bytes
+    /// let bytes = [UInt8](post)
+    ///
+    /// // Or render to string
+    /// print(String(post))  // "<mailto:list@example.com>"
+    /// print(String(announcementPost))  // "NO"
     /// ```
     public enum Post: Hashable, Sendable {
         /// One or more URIs where messages can be posted
@@ -48,11 +62,19 @@ extension RFC_2369.List {
         /// Per RFC 2369 Section 3.4:
         /// > List-Post: NO (posting not allowed on this list)
         case noPosting
-
     }
 }
 
+// MARK: - CustomStringConvertible
 
+extension RFC_2369.List.Post: CustomStringConvertible {
+    /// String representation of the post value
+    ///
+    /// Renders as "NO" for `.noPosting` or angle-bracketed URIs for `.uris`.
+    public var description: String {
+        String(decoding: [UInt8](self), as: UTF8.self)
+    }
+}
 
 // MARK: - Codable
 

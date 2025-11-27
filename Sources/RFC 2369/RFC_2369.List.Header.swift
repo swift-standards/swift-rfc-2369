@@ -1,4 +1,15 @@
-import RFC_3987
+// ===----------------------------------------------------------------------===//
+//
+// This source file is part of the swift-rfc-2369 open source project
+//
+// Copyright (c) 2025 Coen ten Thije Boonkkamp
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// ===----------------------------------------------------------------------===//
 
 extension RFC_2369.List {
     /// Complete set of list management headers as defined in RFC 2369
@@ -24,7 +35,10 @@ extension RFC_2369.List {
     ///     archive: try RFC_3987.IRI("https://example.com/archive")
     /// )
     ///
-    /// // Render as email headers
+    /// // Serialize to bytes
+    /// let bytes = [UInt8](headers)
+    ///
+    /// // Render as email headers dictionary
     /// let emailHeaders = [String: String](listHeader: headers)
     /// ```
     ///
@@ -106,33 +120,17 @@ extension RFC_2369.List {
             self.archive = archive
         }
 
-        /// Creates list headers with IRI.Representable values (convenience)
-        ///
-        /// Accepts any IRI.Representable type such as Foundation URL.
-        ///
-        /// - Parameters:
-        ///   - help: URI for list help (e.g., URL, RFC_3987.IRI)
-        ///   - unsubscribe: URI(s) for unsubscribing
-        ///   - subscribe: URI(s) for subscribing
-        ///   - post: URI(s) for posting, or .noPosting
-        ///   - owner: URI(s) for contacting owner
-        ///   - archive: URI for list archive
-        public init(
-            help: (any RFC_3987.IRI.Representable)? = nil,
-            unsubscribe: [any RFC_3987.IRI.Representable]? = nil,
-            subscribe: [any RFC_3987.IRI.Representable]? = nil,
-            post: Post? = nil,
-            owner: [any RFC_3987.IRI.Representable]? = nil,
-            archive: (any RFC_3987.IRI.Representable)? = nil
-        ) {
-            self.help = help?.iri
-            self.unsubscribe = unsubscribe?.map { $0.iri }
-            self.subscribe = subscribe?.map { $0.iri }
-            self.post = post
-            self.owner = owner?.map { $0.iri }
-            self.archive = archive?.iri
-        }
+    }
+}
 
+// MARK: - CustomStringConvertible
+
+extension RFC_2369.List.Header: CustomStringConvertible {
+    /// String representation of the list headers
+    ///
+    /// Renders all headers as RFC 5322 header lines.
+    public var description: String {
+        String(decoding: [UInt8](self), as: UTF8.self)
     }
 }
 
@@ -185,7 +183,7 @@ extension [String: String] {
         }
 
         if let post = listHeader.post {
-            headers["List-Post"] = String(listPost: post)
+            headers["List-Post"] = post.description
         }
 
         if let owner = listHeader.owner, !owner.isEmpty {
