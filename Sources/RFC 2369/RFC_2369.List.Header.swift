@@ -173,12 +173,12 @@ extension RFC_2369.List.Header: UInt8.ASCII.Serializable {
             lines.append(currentLine)
         }
 
-        var help: RFC_3987.IRI? = nil
-        var unsubscribe: [RFC_3987.IRI]? = nil
-        var subscribe: [RFC_3987.IRI]? = nil
-        var post: RFC_2369.List.Post? = nil
-        var owner: [RFC_3987.IRI]? = nil
-        var archive: RFC_3987.IRI? = nil
+        var help: RFC_3987.IRI?
+        var unsubscribe: [RFC_3987.IRI]?
+        var subscribe: [RFC_3987.IRI]?
+        var post: RFC_2369.List.Post?
+        var owner: [RFC_3987.IRI]?
+        var archive: RFC_3987.IRI?
 
         for line in lines {
             guard let colonIndex = line.firstIndex(of: .ascii.colon) else { continue }
@@ -377,13 +377,15 @@ extension [String: String] {
         }
 
         if let unsubscribe = listHeader.unsubscribe, !unsubscribe.isEmpty {
-            headers["List-Unsubscribe"] = unsubscribe
+            headers["List-Unsubscribe"] =
+                unsubscribe
                 .map { "<\($0.value)>" }
                 .joined(separator: ", ")
         }
 
         if let subscribe = listHeader.subscribe, !subscribe.isEmpty {
-            headers["List-Subscribe"] = subscribe
+            headers["List-Subscribe"] =
+                subscribe
                 .map { "<\($0.value)>" }
                 .joined(separator: ", ")
         }
@@ -393,7 +395,8 @@ extension [String: String] {
         }
 
         if let owner = listHeader.owner, !owner.isEmpty {
-            headers["List-Owner"] = owner
+            headers["List-Owner"] =
+                owner
                 .map { "<\($0.value)>" }
                 .joined(separator: ", ")
         }
