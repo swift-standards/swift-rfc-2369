@@ -67,10 +67,94 @@ extension RFC_2369.List {
     }
 }
 
-// MARK: - UInt8.Serializable Conformance
+// MARK: - UInt8.ASCII.Serializable
 
-extension RFC_2369.List.Post: UInt8.Serializable {
+extension RFC_2369.List.Post: UInt8.ASCII.Serializable {
     public static let serialize: @Sendable (Self) -> [UInt8] = [UInt8].init
+
+    /// Parses a List-Post value from ASCII bytes (AUTHORITATIVE IMPLEMENTATION)
+    ///
+    /// ## RFC 2369 Section 3.4
+    ///
+    /// > The List-Post field describes the method for posting to the list.
+    /// > This is typically the address of the list, but MAY be a moderator, or MAY be
+    /// > unavailable (as indicated by the special value "NO").
+    ///
+    /// ## Category Theory
+    ///
+    /// Parsing transformation:
+    /// - **Domain**: [UInt8] (ASCII bytes)
+    /// - **Codomain**: RFC_2369.List.Post (structured data)
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let post = try RFC_2369.List.Post(ascii: "NO".utf8)
+    /// // post == .noPosting
+    ///
+    /// let post2 = try RFC_2369.List.Post(ascii: "<mailto:list@example.com>".utf8)
+    /// // post2 == .uris([...])
+    /// ```
+    ///
+    /// - Parameter bytes: The post value as ASCII bytes
+    /// - Throws: `Error` if parsing fails
+    public init<Bytes: Collection>(ascii bytes: Bytes, in context: Void = ()) throws(Error)
+    where Bytes.Element == UInt8 {
+        var byteArray = Array(bytes)
+
+        // Strip leading/trailing whitespace
+        while !byteArray.isEmpty && (byteArray.first == .ascii.space || byteArray.first == .ascii.htab) {
+            byteArray.removeFirst()
+        }
+        while !byteArray.isEmpty && (byteArray.last == .ascii.space || byteArray.last == .ascii.htab) {
+            byteArray.removeLast()
+        }
+
+        guard !byteArray.isEmpty else { throw Error.empty }
+
+        // Check for "NO" (case-insensitive)
+        let valueString = String(decoding: byteArray, as: UTF8.self).uppercased()
+        if valueString == "NO" {
+            self = .noPosting
+            return
+        }
+
+        // Parse angle-bracketed, comma-separated IRIs
+        var iris: [RFC_3987.IRI] = []
+        var current: [UInt8] = []
+        var inBrackets = false
+
+        for byte in byteArray {
+            if byte == .ascii.lessThanSign {
+                inBrackets = true
+                current = []
+            } else if byte == .ascii.greaterThanSign {
+                inBrackets = false
+                if !current.isEmpty {
+                    let iriString = String(decoding: current, as: UTF8.self)
+                    if let iri = try? RFC_3987.IRI(iriString) {
+                        iris.append(iri)
+                    } else {
+                        throw Error.invalidIRI(iriString)
+                    }
+                }
+            } else if inBrackets {
+                current.append(byte)
+            }
+        }
+
+        guard !iris.isEmpty else {
+            throw Error.noURIs(String(decoding: byteArray, as: UTF8.self))
+        }
+
+        self = .uris(iris)
+    }
+}
+
+// MARK: - Protocol Conformances
+
+extension RFC_2369.List.Post: UInt8.ASCII.RawRepresentable {
+    public typealias RawValue = String
 }
 
 // MARK: - [UInt8] Conversion
