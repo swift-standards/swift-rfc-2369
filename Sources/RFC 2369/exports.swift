@@ -13,7 +13,9 @@
 
 /// Re-export dependencies for downstream convenience
 ///
-/// Following the standard pattern, RFC 2369 re-exports RFC 3987 (IRI)
-/// so that consumers get access to IRI types without additional imports.
+/// Following the standard pattern, RFC 2369 re-exports:
+/// - INCITS 4-1986 (ASCII byte constants)
+/// - RFC 3987 (IRI types)
 
+@_exported public import INCITS_4_1986
 @_exported public import RFC_3987
