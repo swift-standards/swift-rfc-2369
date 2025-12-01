@@ -70,7 +70,26 @@ extension RFC_2369.List {
 // MARK: - UInt8.ASCII.Serializable
 
 extension RFC_2369.List.Post: UInt8.ASCII.Serializable {
-    public static let serialize: @Sendable (Self) -> [UInt8] = [UInt8].init
+    static public func serialize<Buffer>(
+        ascii post: RFC_2369.List.Post,
+        into buffer: inout Buffer
+    ) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+        switch post {
+        case .noPosting:
+            buffer.append(contentsOf: [.ascii.N, .ascii.O])
+
+        case .uris(let iris):
+            for (index, iri) in iris.enumerated() {
+                if index > 0 {
+                    buffer.append(.ascii.comma)
+                    buffer.append(.ascii.space)
+                }
+                buffer.append(.ascii.lessThanSign)
+                buffer.append(ascii: iri)
+                buffer.append(.ascii.greaterThanSign)
+            }
+        }
+    }
 
     /// Parses a List-Post value from ASCII bytes (AUTHORITATIVE IMPLEMENTATION)
     ///
@@ -116,9 +135,8 @@ extension RFC_2369.List.Post: UInt8.ASCII.Serializable {
 
         guard !byteArray.isEmpty else { throw Error.empty }
 
-        // Check for "NO" (case-insensitive)
-        let valueString = String(decoding: byteArray, as: UTF8.self).uppercased()
-        if valueString == "NO" {
+        // Check for "NO" (case-insensitive)        
+        if Array(bytes) == [UInt8.ascii.N, .ascii.O] {
             self = .noPosting
             return
         }
@@ -161,73 +179,8 @@ extension RFC_2369.List.Post: UInt8.ASCII.RawRepresentable {
     public typealias RawValue = String
 }
 
-// MARK: - [UInt8] Conversion
+extension RFC_2369.List.Post: CustomStringConvertible {}
 
-extension [UInt8] {
-    /// Creates ASCII bytes from RFC 2369 List.Post value
-    ///
-    /// Per RFC 2369 Section 3.4:
-    /// - `.noPosting` renders as `NO`
-    /// - `.uris(...)` renders as angle-bracketed, comma-separated URIs
-    ///
-    /// ## Category Theory
-    ///
-    /// Canonical serialization (natural transformation):
-    /// - **Domain**: RFC_2369.List.Post (structured data)
-    /// - **Codomain**: [UInt8] (ASCII bytes)
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// let post = RFC_2369.List.Post.noPosting
-    /// let bytes = [UInt8](post)  // [0x4E, 0x4F] == "NO"
-    ///
-    /// let postURIs = RFC_2369.List.Post.uris([iri])
-    /// let bytes2 = [UInt8](postURIs)  // "<mailto:list@example.com>"
-    /// ```
-    ///
-    /// - Parameter post: The post value to serialize
-    public init(_ post: RFC_2369.List.Post) {
-        switch post {
-        case .noPosting:
-            self = [.ascii.N, .ascii.O]
-
-        case .uris(let iris):
-            self = []
-            for (index, iri) in iris.enumerated() {
-                if index > 0 {
-                    append(.ascii.comma)
-                    append(.ascii.space)
-                }
-                append(.ascii.lessThanSign)
-                append(contentsOf: iri.value.utf8)
-                append(.ascii.greaterThanSign)
-            }
-        }
-    }
-}
-
-// MARK: - CustomStringConvertible
-
-extension RFC_2369.List.Post: CustomStringConvertible {
-    /// String representation of the post value
-    ///
-    /// Renders as "NO" for `.noPosting` or angle-bracketed URIs for `.uris`.
-    public var description: String {
-        String(decoding: self.bytes, as: UTF8.self)
-    }
-}
-
-// MARK: - StringProtocol Conversion
-
-extension StringProtocol {
-    /// Create a string from an RFC 2369 List.Post value
-    ///
-    /// - Parameter post: The post value to convert
-    public init(_ post: RFC_2369.List.Post) {
-        self = Self(decoding: post.bytes, as: UTF8.self)
-    }
-}
 
 // MARK: - Codable
 

@@ -98,7 +98,99 @@ extension RFC_2369.List {
 // MARK: - UInt8.ASCII.Serializable
 
 extension RFC_2369.List.Header: UInt8.ASCII.Serializable {
-    public static let serialize: @Sendable (Self) -> [UInt8] = [UInt8].init
+//    public static func serialize: @Sendable (Self) -> [UInt8] = [UInt8].init
+    static public func serialize<Buffer>(
+        ascii header: RFC_2369.List.Header,
+        into buffer: inout Buffer
+    ) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+        // List-Help
+        if let help = header.help {
+            buffer.append(contentsOf: "List-Help".utf8)
+            buffer.append(.ascii.colon)
+            buffer.append(.ascii.space)
+            buffer.append(.ascii.lessThanSign)
+            buffer.append(contentsOf: help.value.utf8)
+            buffer.append(.ascii.greaterThanSign)
+            buffer.append(.ascii.cr)
+            buffer.append(.ascii.lf)
+        }
+
+        // List-Unsubscribe
+        if let unsubscribe = header.unsubscribe, !unsubscribe.isEmpty {
+            buffer.append(contentsOf: "List-Unsubscribe".utf8)
+            buffer.append(.ascii.colon)
+            buffer.append(.ascii.space)
+            for (index, iri) in unsubscribe.enumerated() {
+                if index > 0 {
+                    buffer.append(.ascii.comma)
+                    buffer.append(.ascii.space)
+                }
+                buffer.append(.ascii.lessThanSign)
+                buffer.append(contentsOf: iri.value.utf8)
+                buffer.append(.ascii.greaterThanSign)
+            }
+            buffer.append(.ascii.cr)
+            buffer.append(.ascii.lf)
+        }
+
+        // List-Subscribe
+        if let subscribe = header.subscribe, !subscribe.isEmpty {
+            buffer.append(contentsOf: "List-Subscribe".utf8)
+            buffer.append(.ascii.colon)
+            buffer.append(.ascii.space)
+            for (index, iri) in subscribe.enumerated() {
+                if index > 0 {
+                    buffer.append(.ascii.comma)
+                    buffer.append(.ascii.space)
+                }
+                buffer.append(.ascii.lessThanSign)
+                buffer.append(contentsOf: iri.value.utf8)
+                buffer.append(.ascii.greaterThanSign)
+            }
+            buffer.append(.ascii.cr)
+            buffer.append(.ascii.lf)
+        }
+
+        // List-Post
+        if let post = header.post {
+            buffer.append(contentsOf: "List-Post".utf8)
+            buffer.append(.ascii.colon)
+            buffer.append(.ascii.space)
+            buffer.append(contentsOf: [UInt8](post))
+            buffer.append(.ascii.cr)
+            buffer.append(.ascii.lf)
+        }
+
+        // List-Owner
+        if let owner = header.owner, !owner.isEmpty {
+            buffer.append(contentsOf: "List-Owner".utf8)
+            buffer.append(.ascii.colon)
+            buffer.append(.ascii.space)
+            for (index, iri) in owner.enumerated() {
+                if index > 0 {
+                    buffer.append(.ascii.comma)
+                    buffer.append(.ascii.space)
+                }
+                buffer.append(.ascii.lessThanSign)
+                buffer.append(contentsOf: iri.value.utf8)
+                buffer.append(.ascii.greaterThanSign)
+            }
+            buffer.append(.ascii.cr)
+            buffer.append(.ascii.lf)
+        }
+
+        // List-Archive
+        if let archive = header.archive {
+            buffer.append(contentsOf: "List-Archive".utf8)
+            buffer.append(.ascii.colon)
+            buffer.append(.ascii.space)
+            buffer.append(.ascii.lessThanSign)
+            buffer.append(contentsOf: archive.value.utf8)
+            buffer.append(.ascii.greaterThanSign)
+            buffer.append(.ascii.cr)
+            buffer.append(.ascii.lf)
+        }
+    }
 
     /// Parses list headers from ASCII bytes (AUTHORITATIVE IMPLEMENTATION)
     ///
@@ -246,120 +338,6 @@ extension RFC_2369.List.Header: UInt8.ASCII.RawRepresentable {
 extension RFC_2369.List.Header: CustomStringConvertible {
     public var description: String {
         String(self)
-    }
-}
-
-// MARK: - [UInt8] Conversion
-
-extension [UInt8] {
-    /// Creates ASCII bytes from RFC 2369 List.Header
-    ///
-    /// ## Category Theory
-    ///
-    /// Natural transformation: RFC_2369.List.Header → [UInt8]
-    ///
-    /// - Parameter header: The list header to serialize
-    public init(_ header: RFC_2369.List.Header) {
-        self = []
-
-        // List-Help
-        if let help = header.help {
-            append(contentsOf: "List-Help".utf8)
-            append(.ascii.colon)
-            append(.ascii.space)
-            append(.ascii.lessThanSign)
-            append(contentsOf: help.value.utf8)
-            append(.ascii.greaterThanSign)
-            append(.ascii.cr)
-            append(.ascii.lf)
-        }
-
-        // List-Unsubscribe
-        if let unsubscribe = header.unsubscribe, !unsubscribe.isEmpty {
-            append(contentsOf: "List-Unsubscribe".utf8)
-            append(.ascii.colon)
-            append(.ascii.space)
-            for (index, iri) in unsubscribe.enumerated() {
-                if index > 0 {
-                    append(.ascii.comma)
-                    append(.ascii.space)
-                }
-                append(.ascii.lessThanSign)
-                append(contentsOf: iri.value.utf8)
-                append(.ascii.greaterThanSign)
-            }
-            append(.ascii.cr)
-            append(.ascii.lf)
-        }
-
-        // List-Subscribe
-        if let subscribe = header.subscribe, !subscribe.isEmpty {
-            append(contentsOf: "List-Subscribe".utf8)
-            append(.ascii.colon)
-            append(.ascii.space)
-            for (index, iri) in subscribe.enumerated() {
-                if index > 0 {
-                    append(.ascii.comma)
-                    append(.ascii.space)
-                }
-                append(.ascii.lessThanSign)
-                append(contentsOf: iri.value.utf8)
-                append(.ascii.greaterThanSign)
-            }
-            append(.ascii.cr)
-            append(.ascii.lf)
-        }
-
-        // List-Post
-        if let post = header.post {
-            append(contentsOf: "List-Post".utf8)
-            append(.ascii.colon)
-            append(.ascii.space)
-            append(contentsOf: [UInt8](post))
-            append(.ascii.cr)
-            append(.ascii.lf)
-        }
-
-        // List-Owner
-        if let owner = header.owner, !owner.isEmpty {
-            append(contentsOf: "List-Owner".utf8)
-            append(.ascii.colon)
-            append(.ascii.space)
-            for (index, iri) in owner.enumerated() {
-                if index > 0 {
-                    append(.ascii.comma)
-                    append(.ascii.space)
-                }
-                append(.ascii.lessThanSign)
-                append(contentsOf: iri.value.utf8)
-                append(.ascii.greaterThanSign)
-            }
-            append(.ascii.cr)
-            append(.ascii.lf)
-        }
-
-        // List-Archive
-        if let archive = header.archive {
-            append(contentsOf: "List-Archive".utf8)
-            append(.ascii.colon)
-            append(.ascii.space)
-            append(.ascii.lessThanSign)
-            append(contentsOf: archive.value.utf8)
-            append(.ascii.greaterThanSign)
-            append(.ascii.cr)
-            append(.ascii.lf)
-        }
-    }
-}
-
-// MARK: - StringProtocol Conversion
-
-extension StringProtocol {
-    /// Create a string from an RFC 2369 List.Header
-    ///
-    /// - Parameter header: The header to convert
-    public init(_ header: RFC_2369.List.Header) {
-        self = Self(decoding: header.bytes, as: UTF8.self)
     }
 }
 
