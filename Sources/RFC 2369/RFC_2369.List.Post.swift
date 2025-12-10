@@ -67,13 +67,13 @@ extension RFC_2369.List {
     }
 }
 
-// MARK: - UInt8.ASCII.Serializable
+// MARK: - Binary.ASCII.Serializable
 
-extension RFC_2369.List.Post: UInt8.ASCII.Serializable {
+extension RFC_2369.List.Post: Binary.ASCII.Serializable {
     static public func serialize<Buffer>(
         ascii post: RFC_2369.List.Post,
         into buffer: inout Buffer
-    ) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+    ) where Buffer: RangeReplaceableCollection, Buffer.Element == UInt8 {
         switch post {
         case .noPosting:
             buffer.append(contentsOf: [.ascii.N, .ascii.O])
@@ -123,19 +123,17 @@ extension RFC_2369.List.Post: UInt8.ASCII.Serializable {
 
         // Strip leading/trailing whitespace
         while !byteArray.isEmpty
-            && (byteArray.first == .ascii.space || byteArray.first == .ascii.htab)
-        {
+            && (byteArray.first == .ascii.space || byteArray.first == .ascii.htab) {
             byteArray.removeFirst()
         }
         while !byteArray.isEmpty
-            && (byteArray.last == .ascii.space || byteArray.last == .ascii.htab)
-        {
+            && (byteArray.last == .ascii.space || byteArray.last == .ascii.htab) {
             byteArray.removeLast()
         }
 
         guard !byteArray.isEmpty else { throw Error.empty }
 
-        // Check for "NO" (case-insensitive)        
+        // Check for "NO" (case-insensitive)
         if Array(bytes) == [UInt8.ascii.N, .ascii.O] {
             self = .noPosting
             return
@@ -175,12 +173,11 @@ extension RFC_2369.List.Post: UInt8.ASCII.Serializable {
 
 // MARK: - Protocol Conformances
 
-extension RFC_2369.List.Post: UInt8.ASCII.RawRepresentable {
+extension RFC_2369.List.Post: Binary.ASCII.RawRepresentable {
     public typealias RawValue = String
 }
 
 extension RFC_2369.List.Post: CustomStringConvertible {}
-
 
 // MARK: - Codable
 

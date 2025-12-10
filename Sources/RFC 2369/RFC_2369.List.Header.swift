@@ -95,14 +95,14 @@ extension RFC_2369.List {
     }
 }
 
-// MARK: - UInt8.ASCII.Serializable
+// MARK: - Binary.ASCII.Serializable
 
-extension RFC_2369.List.Header: UInt8.ASCII.Serializable {
-//    public static func serialize: @Sendable (Self) -> [UInt8] = [UInt8].init
+extension RFC_2369.List.Header: Binary.ASCII.Serializable {
+    //    public static func serialize: @Sendable (Self) -> [UInt8] = [UInt8].init
     static public func serialize<Buffer>(
         ascii header: RFC_2369.List.Header,
         into buffer: inout Buffer
-    ) where Buffer : RangeReplaceableCollection, Buffer.Element == UInt8 {
+    ) where Buffer: RangeReplaceableCollection, Buffer.Element == UInt8 {
         // List-Help
         if let help = header.help {
             buffer.append(contentsOf: "List-Help".utf8)
@@ -331,7 +331,7 @@ extension RFC_2369.List.Header: UInt8.ASCII.Serializable {
 
 // MARK: - Protocol Conformances
 
-extension RFC_2369.List.Header: UInt8.ASCII.RawRepresentable {
+extension RFC_2369.List.Header: Binary.ASCII.RawRepresentable {
     public typealias RawValue = String
 }
 
